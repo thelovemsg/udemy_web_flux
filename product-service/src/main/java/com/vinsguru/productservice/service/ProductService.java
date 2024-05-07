@@ -1,6 +1,7 @@
 package com.vinsguru.productservice.service;
 
 import com.vinsguru.productservice.dto.ProductDTO;
+import com.vinsguru.productservice.entity.Product;
 import com.vinsguru.productservice.repository.ProductRepository;
 import com.vinsguru.productservice.util.EntityDtoUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,8 @@ public class ProductService {
     }
 
     public Mono<ProductDTO> updateProduct(String id, Mono<ProductDTO> productDTOMono) {
-        return repository.findById(id)
+        Mono<Product> byId = repository.findById(id);
+        return byId
                 .flatMap(p -> productDTOMono
                                 .map(EntityDtoUtil::toEntity)
                                 .doOnNext(e -> e.setId(id)))
