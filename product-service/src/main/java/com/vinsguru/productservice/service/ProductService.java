@@ -1,10 +1,10 @@
 package com.vinsguru.productservice.service;
 
 import com.vinsguru.productservice.dto.ProductDTO;
-import com.vinsguru.productservice.entity.Product;
 import com.vinsguru.productservice.repository.ProductRepository;
 import com.vinsguru.productservice.util.EntityDtoUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Range;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -19,6 +19,11 @@ public class ProductService {
         return repository.findAll().map(EntityDtoUtil::toDto);
     }
 
+    public Flux<ProductDTO> getProductByPriceRange(int min, int max) {
+        return repository.findByPriceBetween(Range.closed(min, max))
+                .map(EntityDtoUtil::toDto);
+    }
+
     public Mono<ProductDTO> getProductById(String id) {
         return repository.findById(id).map(EntityDtoUtil::toDto);
     }
@@ -30,8 +35,7 @@ public class ProductService {
     }
 
     public Mono<ProductDTO> updateProduct(String id, Mono<ProductDTO> productDTOMono) {
-        Mono<Product> byId = repository.findById(id);
-        return byId
+        return repository.findById(id)
                 .flatMap(p -> productDTOMono
                                 .map(EntityDtoUtil::toEntity)
                                 .doOnNext(e -> e.setId(id)))
@@ -42,4 +46,5 @@ public class ProductService {
     public Mono<Void> deleteProduct(String id) {
         return repository.deleteById(id);
     }
+
 }
