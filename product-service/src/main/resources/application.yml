@@ -2,6 +2,9 @@ server:
   port: 8091
 
 spring:
+  mongodb:
+    embedded:
+      version: 4.4.1
   data:
     mongodb:
       database: productdb

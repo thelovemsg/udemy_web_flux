@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: r2dbc:mysql://localhost:3306/world?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Seoul
+    username: root
+    password: 1234
+    pool:
+      max-size: 100
+      validation-query: SELECT 1
+server:
+  port: 8092
+logging:
+  level:
+    org:
+      springframework:
+        r2dbc: DEBUG
