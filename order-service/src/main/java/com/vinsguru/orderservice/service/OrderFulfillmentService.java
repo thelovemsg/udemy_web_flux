@@ -5,10 +5,12 @@ import com.vinsguru.orderservice.client.UserClient;
 import com.vinsguru.orderservice.dto.PurchaseOrderRequestDTO;
 import com.vinsguru.orderservice.dto.PurchaseOrderResponseDTO;
 import com.vinsguru.orderservice.dto.RequestContext;
+import com.vinsguru.orderservice.repository.PurchaseOrderRepository;
 import com.vinsguru.orderservice.util.EntityDTOUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Service
 @RequiredArgsConstructor
@@ -16,14 +18,17 @@ public class OrderFulfillmentService {
 
     private final ProductClient productClient;
     private final UserClient userClient;
+    private final PurchaseOrderRepository purchaseOrderRepository;
 
     public Mono<PurchaseOrderResponseDTO> processOrder(Mono<PurchaseOrderRequestDTO> requestDTOMono) {
-        return null;
-//        return requestDTOMono.map(RequestContext::new)
-//                .flatMap(this::productRequestResponse)
-//                .doOnNext(EntityDTOUtil::setTransactionRequestDTO)
-//                .flatMap(this::userRequestResponse)
-//                .doOnNext()
+        return requestDTOMono.map(RequestContext::new)
+                .flatMap(this::productRequestResponse)
+                .doOnNext(EntityDTOUtil::setTransactionRequestDTO)
+                .flatMap(this::userRequestResponse)
+                .map(EntityDTOUtil::getPurchaseOrder)
+                .map(purchaseOrderRepository::save) // blocking
+                .map(EntityDTOUtil::getPurchaseOrderResponseDTO)
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     private Mono<RequestContext> productRequestResponse(RequestContext rc) {
