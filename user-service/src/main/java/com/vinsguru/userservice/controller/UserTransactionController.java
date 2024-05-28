@@ -20,7 +20,7 @@ public class UserTransactionController {
         return requestDTOMono.flatMap(transactionService::createTransaction);
     }
 
-    @GetMapping("/${userId}")
+    @GetMapping("/{userId}")
     public Flux<TransactionResponseDTO> getAllTransactionByUser(@PathVariable int userId) {
         return transactionService.getTransactionsByUser(userId);
     }

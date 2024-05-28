@@ -22,10 +22,15 @@ public class UserService {
     }
 
     public Mono<UserDTO> createUser(Mono<UserDTO> userDTOMono) {
+        try {
         return userDTOMono
                 .map(EntityDTOUtil::toEntity)
                 .flatMap(userRepository::save)
                 .map(EntityDTOUtil::toDTO);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     public Mono<UserDTO> updateUser(int id, Mono<UserDTO> userDTOMono) {

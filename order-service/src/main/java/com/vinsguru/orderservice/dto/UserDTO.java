@@ -1,4 +1,4 @@
-package src.main.java.com.vinsguru.orderservice.dto;
+package com.vinsguru.orderservice.dto;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -104,4 +104,57 @@ class FluxAndMonoGeneratorServiceTest {
                 .expectNext("H","E","L","L","O","N","I","C","E","G","O","O","D")
                 .verifyComplete();
     }
+
+    @Test
+    void namesFlux_transform_1() {
+        int stringLength = 6;
+
+        var value = fluxAndMonoGeneratorService.namesFlux_transform(stringLength);
+        StepVerifier.create(value)
+//                .expectNext("H","E","L","L","O","N","I","C","E","G","O","O","D")
+                .expectNext("default")
+                .verifyComplete();
+    }
+
+    @Test
+    void namesFlux_transform_2() {
+        int stringLength = 6;
+
+        var value = fluxAndMonoGeneratorService.namesFlux_transform_switchIfEmpty(stringLength);
+        StepVerifier.create(value)
+                .expectNext("H","E","L","L","O","N","I","C","E","G","O","O","D")
+                .verifyComplete();
+    }
+
+    @Test
+    void exploreConcat() {
+        var concatFlux = fluxAndMonoGeneratorService.exploreConcat();
+        StepVerifier.create(concatFlux)
+                .expectNext("A", "B", "C","D", "E", "F")
+                .verifyComplete();
+    }
+
+    @Test
+    void explore_merge() {
+        var value = fluxAndMonoGeneratorService.explore_merge();
+        StepVerifier.create(value)
+                .expectNext("A", "D", "B","E", "C", "F")
+                .verifyComplete();
+    }
+
+    @Test
+    void explore_zip() {
+        var value = fluxAndMonoGeneratorService.explore_zip();
+        StepVerifier.create(value)
+                .expectNext("AD", "BE", "CF")
+                .verifyComplete();
+    }
+
+    @Test
+    void explore_zip_1() {
+        var value = fluxAndMonoGeneratorService.explore_zip_1();
+        StepVerifier.create(value)
+                .expectNext("AD14", "BE25", "CF36")
+                .verifyComplete();
+    }
 }
