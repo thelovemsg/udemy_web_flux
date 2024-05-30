@@ -31,7 +31,7 @@ public class FluxAndMonoController {
     * Examples: Stock Tickers, Realtime updates of Sports Events
     * */
 
-    @GetMapping(value = "/monoStream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<Long> monoStream() {
         return Flux.interval(Duration.ofSeconds(1))
                 .log();
