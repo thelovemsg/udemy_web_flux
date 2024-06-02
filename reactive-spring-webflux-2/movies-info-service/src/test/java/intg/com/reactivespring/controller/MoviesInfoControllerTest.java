@@ -8,14 +8,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.repository.query.Param;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -67,7 +66,7 @@ class MoviesInfoControllerTest {
     }
 
     @Test
-    void getAllMovieInfox() {
+    void getAllMovieInfos() {
         webTestClient
                 .get()
                 .uri(MOVIES_INFO_URL)
@@ -77,6 +76,56 @@ class MoviesInfoControllerTest {
                 .expectBodyList(MovieInfo.class)
                 .hasSize(3);
 
+    }
+
+    @Test
+    void getMovieInfoById() {
+        var movieInfoId = "abc";
+        webTestClient
+                .get()
+                .uri(MOVIES_INFO_URL+"/{id}", movieInfoId)
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful()
+//                .expectBody(MovieInfo.class)
+                .expectBody()
+                .jsonPath("$.name").isEqualTo("thelovemsg1");
+//                .consumeWith(movieInfoEntityExchangeResult -> {
+//                    var movieInfo = movieInfoEntityExchangeResult.getResponseBody();
+//                    Assertions.assertNotNull(movieInfo);
+//                });
+    }
+
+    @Test
+    void updateMovieInfo() {
+        var movieInfoId = "abc";
+        MovieInfo movieInfo = new MovieInfo(null, "thelovemsg999", 2005, List.of("1,2,3"), LocalDate.parse("2005-01-01"));
+        webTestClient
+                .put()
+                .uri(MOVIES_INFO_URL+"/{id}", movieInfoId)
+                .bodyValue(movieInfo)
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful()
+                .expectBody(MovieInfo.class)
+                .consumeWith(movieInfoEntityExchangeResult -> {
+                    var updatedMovieInfo = movieInfoEntityExchangeResult.getResponseBody();
+                    assert updatedMovieInfo!=null;
+                    assert updatedMovieInfo.getMovieInfo()!=null;
+                    assertEquals("thelovemsg999", updatedMovieInfo.getName());
+                });
+
+    }
+
+    @Test
+    void getMovieInfoById_1() {
+        var id = "def";
+        webTestClient
+                .get()
+                .uri(MOVIES_INFO_URL + "/{id}", id)
+                .exchange()
+                .expectStatus()
+                .isNotFound();
     }
 
 }
