@@ -1,0 +1,39 @@
+### Add Review 1
+POST http://localhost:8081/v1/reviews
+Content-Type: application/json
+
+{
+  "reviewId": 1,
+  "movieInfoId": 1,
+  "comment": "Excellent Movie",
+  "rating": 8.0
+}
+
+### Add Review 2
+POST http://localhost:8081/v1/reviews
+Content-Type: application/json
+
+{
+  "reviewId": null,
+  "movieInfoId": 1,
+  "comment": "Awesome Movie",
+  "rating": 9.0
+}
+
+### Get All Reviews
+GET http://localhost:8081/v1/reviews?movieInfoId=1
+GET http://localhost:8081/v1/reviews?movieInfoId=2
+
+### Update Review
+PUT http://localhost:8081/v1/reviews/1
+Content-Type: application/json
+
+{
+  "reviewId": null,
+  "movieInfoId": 1,
+  "comment": "Excellent movie Update",
+  "rating": 8.5
+}
+
+### Delete Review
+DELETE http://localhost:8081/v1/reviews/1
