@@ -6,10 +6,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.extern.slf4j.XSlf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Sinks;
 
 import javax.validation.Valid;
 
@@ -21,20 +23,7 @@ public class MoviesInfoController {
 
     private final MovieInfoService movieInfoService;
 
-    @PostMapping("/movieinfos")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Mono<MovieInfo> addMovieInfo(@RequestBody @Valid MovieInfo movieInfo) {
-        return movieInfoService.addMovieInfo(movieInfo);
-    }
-
-    @GetMapping("/movieinfos")
-    public Flux<MovieInfo> getAllMovieInfos(@RequestParam(value = "year", required = false) Integer year) {
-        log.info("Year is : {}", year);
-        if(year != null) {
-            return movieInfoService.getMovieInfoByYear(year);
-        }
-        return movieInfoService.getAllMovieInfos().log();
-    }
+    Sinks.Many<MovieInfo> moviesInfoSink = Sinks.many().replay().all();
 
 //    @GetMapping("/movieinfos/{id}")
 //    public Mono<MovieInfo> getAllMovieInfoById(@PathVariable String id) {
@@ -53,6 +42,22 @@ public class MoviesInfoController {
 
     }
 
+    @GetMapping(value = "/movieinfos/stream", produces = MediaType.APPLICATION_NDJSON_VALUE)
+    @ResponseStatus(HttpStatus.OK)
+    public Flux<MovieInfo> updateMovieInfo() {
+        return moviesInfoSink.asFlux();
+    }
+
+    @PostMapping("/movieinfos")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<MovieInfo> addMovieInfo(@RequestBody @Valid MovieInfo movieInfo) {
+        return movieInfoService.addMovieInfo(movieInfo)
+                .doOnNext(savedInfo -> moviesInfoSink.tryEmitNext(savedInfo));
+
+        //publish that movie to something
+        // subscriber to this movie info
+    }
+
     @DeleteMapping("/movieinfos/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public Mono<Void> deleteMovieInfo(@PathVariable String id) {
@@ -67,5 +72,14 @@ public class MoviesInfoController {
                         .body(movieInfo1))
                 .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()))
                 .log();
+    }
+
+    @GetMapping("/movieinfos")
+    public Flux<MovieInfo> getAllMovieInfos(@RequestParam(value = "year", required = false) Integer year) {
+        log.info("Year is : {}", year);
+        if(year != null) {
+            return movieInfoService.getMovieInfoByYear(year);
+        }
+        return movieInfoService.getAllMovieInfos().log();
     }
 }
